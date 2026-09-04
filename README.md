@@ -1,4 +1,4 @@
-"# CODSOFT_TASK2 "
+
 🛡️ FraudGuard AI — Credit Card Fraud Detection
 
 CODSOFT Internship — Task 2

@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import base64
 from pathlib import Path
 from sklearn.metrics import confusion_matrix, classification_report
 
@@ -210,6 +211,373 @@ def card(label, value):
         <div class="card-value">{value}</div>
     </div>
     """
+# ============================================================
+# LOGIN PAGE
+# ============================================================
+
+import base64
+from pathlib import Path
+import streamlit as st
+
+
+BASE_DIR = Path(__file__).resolve().parent
+LOGIN_BG = BASE_DIR / "OIP.webp"
+
+
+def get_base64_image(image_path):
+    if not image_path.exists():
+        return ""
+
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+
+def check_login():
+
+    # Already logged in
+    if st.session_state.get("authenticated", False):
+        return True
+
+    # --------------------------------------------------------
+    # BACKGROUND
+    # --------------------------------------------------------
+
+    bg_image = get_base64_image(LOGIN_BG)
+
+    if bg_image:
+        background_css = f"""
+        .stApp {{
+            background-image:
+                linear-gradient(
+                    rgba(2, 6, 23, 0.48),
+                    rgba(2, 6, 23, 0.68)
+                ),
+                url("data:image/png;base64,{bg_image}");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+        """
+    else:
+        background_css = """
+        .stApp {
+            background:
+                radial-gradient(
+                    circle at top left,
+                    #172554,
+                    #020617 70%
+                );
+        }
+        """
+
+    # --------------------------------------------------------
+    # LOGIN DESIGN
+    # --------------------------------------------------------
+
+    st.html(f"""
+    <style>
+
+    {background_css}
+
+    header {{
+        visibility: hidden;
+    }}
+
+    .block-container {{
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        max-width: 100% !important;
+    }}
+
+    /* Main login area */
+    .login-area {{
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }}
+
+    /* Glass card */
+    .login-card {{
+        width: 430px;
+        padding: 32px 38px 28px 38px;
+
+        background: rgba(7, 15, 35, 0.78);
+
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        border-radius: 24px;
+
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+
+        box-shadow:
+            0 25px 80px rgba(0, 0, 0, 0.55),
+            inset 0 1px 0 rgba(255,255,255,0.08);
+
+        text-align: center;
+    }}
+
+    /* Shield */
+    .login-shield {{
+        font-size: 48px;
+        margin-bottom: 3px;
+        filter:
+            drop-shadow(0 0 15px rgba(59,130,246,.75));
+    }}
+
+    /* Title */
+    .login-title {{
+        margin: 0;
+        color: #f8fafc;
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }}
+
+    .login-title span {{
+        color: #3b82f6;
+    }}
+
+    /* Subtitle */
+    .login-subtitle {{
+        margin-top: 7px;
+        color: #94a3b8;
+        font-size: 14px;
+    }}
+
+    /* Divider */
+    .login-divider {{
+        height: 1px;
+        margin: 20px 0 18px 0;
+
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(96,165,250,.55),
+            transparent
+        );
+    }}
+
+    /* Form */
+    div[data-testid="stForm"] {{
+        width: 430px;
+        margin: -155px auto 0 auto;
+
+        padding: 0 38px 22px 38px;
+
+        background: rgba(7, 15, 35, 0.78);
+
+        border: none;
+        border-radius: 0 0 24px 24px;
+
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }}
+
+    /* Labels */
+    div[data-testid="stTextInput"] label {{
+        color: #cbd5e1 !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+    }}
+
+    /* Input */
+    div[data-testid="stTextInput"] input {{
+        height: 46px !important;
+
+        background: rgba(15, 23, 42, 0.85) !important;
+
+        color: white !important;
+
+        border: 1px solid rgba(148,163,184,.25) !important;
+
+        border-radius: 11px !important;
+
+        font-size: 14px !important;
+    }}
+
+    div[data-testid="stTextInput"] input:focus {{
+        border-color: #3b82f6 !important;
+
+        box-shadow:
+            0 0 0 1px #3b82f6,
+            0 0 15px rgba(59,130,246,.20) !important;
+    }}
+
+    /* Login button */
+    div[data-testid="stFormSubmitButton"] button {{
+        height: 46px !important;
+
+        border: none !important;
+        border-radius: 11px !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #6366f1,
+                #7c3aed
+            ) !important;
+
+        color: white !important;
+
+        font-size: 15px !important;
+        font-weight: 700 !important;
+
+        box-shadow:
+            0 10px 25px rgba(59,130,246,.30);
+
+        transition: all .2s ease;
+    }}
+
+    div[data-testid="stFormSubmitButton"] button:hover {{
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 15px 35px rgba(59,130,246,.45);
+    }}
+
+    /* Demo credentials */
+    .demo-login {{
+        width: 430px;
+        margin: 10px auto 0 auto;
+
+        padding: 12px 15px;
+
+        text-align: center;
+
+        background: rgba(15, 23, 42, 0.70);
+
+        border: 1px solid rgba(96,165,250,.18);
+
+        border-radius: 11px;
+
+        color: #94a3b8;
+
+        font-size: 12px;
+    }}
+
+    .demo-title {{
+        color: #60a5fa;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }}
+
+    .demo-value {{
+        color: #e2e8f0;
+        font-weight: 600;
+    }}
+
+    /* Footer */
+    .login-footer {{
+        text-align: center;
+
+        color: #64748b;
+
+        font-size: 11px;
+
+        margin-top: 12px;
+    }}
+
+    </style>
+    """)
+
+    # --------------------------------------------------------
+    # LOGIN HEADER
+    # --------------------------------------------------------
+
+    st.html("""
+    <div class="login-area">
+        <div class="login-card">
+
+            <div class="login-shield">🛡️</div>
+
+            <h1 class="login-title">
+                FraudGuard <span>AI</span>
+            </h1>
+
+            <div class="login-subtitle">
+                Secure access to your fraud detection dashboard
+            </div>
+
+            <div class="login-divider"></div>
+
+        </div>
+    </div>
+    """)
+
+    # --------------------------------------------------------
+    # LOGIN FORM
+    # --------------------------------------------------------
+
+    with st.form("login_form"):
+
+        username = st.text_input(
+            "Username",
+            placeholder="Enter your username"
+        )
+
+        password = st.text_input(
+            "Password",
+            type="password",
+            placeholder="Enter your password"
+        )
+
+        submitted = st.form_submit_button(
+            "🔐  Login",
+            use_container_width=True
+        )
+
+        if submitted:
+
+            if username == "admin" and password == "admin123":
+
+                st.session_state["authenticated"] = True
+
+                st.rerun()
+
+            else:
+
+                st.error("Invalid username or password.")
+
+    # --------------------------------------------------------
+    # DEMO LOGIN DETAILS
+    # --------------------------------------------------------
+
+    st.html("""
+    <div class="demo-login">
+
+        <div class="demo-title">
+            🔑 Demo Login
+        </div>
+
+        Username:
+        <span class="demo-value">admin</span>
+        &nbsp;&nbsp; | &nbsp;&nbsp;
+        Password:
+        <span class="demo-value">admin123</span>
+
+    </div>
+    """)
+
+    # Footer
+    st.html("""
+    <div class="login-footer">
+        🛡️ FraudGuard AI • Secure ML Protection
+    </div>
+    """)
+
+    return False
+
+
+# ============================================================
+# REQUIRE LOGIN
+# ============================================================
+
+if not check_login():
+    st.stop()
 
 # ============================================================
 # LOAD EXISTING MODEL
@@ -244,6 +612,10 @@ with st.sidebar:
     )
 
     st.divider()
+
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["authenticated"] = False
+        st.rerun()
 
     st.markdown("### Model status")
     st.success("● Model loaded")

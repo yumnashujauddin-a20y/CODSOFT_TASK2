@@ -221,7 +221,7 @@ import streamlit as st
 
 
 BASE_DIR = Path(__file__).resolve().parent
-LOGIN_BG = BASE_DIR / "OIP.webp"
+LOGIN_BG = BASE_DIR /"C:\\Users\\yousr\\OneDrive\\Desktop\\codesoft\\assest\\OIP.webp"
 
 
 def get_base64_image(image_path):
